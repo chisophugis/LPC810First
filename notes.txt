@@ -1,0 +1,74 @@
+Will want to be toggling PI0_3
+
+0xA000_0000 base of GPIO registers
+DIR0: offset 0x2000, address 0xA000_2000
+DIR0 = 0b1000: set PI0_3 as output.
+
+NOT0: offset 0x2300, address 0xA000_2300
+NOT0 = 0b1000: toggle PI0_3
+
+mov &0xA000_2000, 0b1000
+1:
+mov &0xA000_2300, 0b1000
+jump 1b
+
+more verbosely:
+dir0: 0xA000_2000
+not0: 0xA000_2300
+pi0_3_mask: 32-bit 0b1000
+ldr r0, dir0
+ldr r1, not0
+ldr r2, pi0_3_mask
+str r2, [r0]
+loop:
+str r2, [r1]
+b loop
+
+
+We have "all of the 16-bit Thumb instructions from ARMv7-M excluding CBZ, CBNZ and IT"
+"the 32-bit Thumb instructions BL, DMB, DSB, ISB, MRS and MSR."
+
+"Calculate the PC or Align(PC,4) value of the instruction. The PC value of
+an instruction is its address plus 4 for a Thumb instruction, or plus 8 for
+an ARM instruction. The Align(PC,4) value of an instruction is its PC value
+ANDed with 0xFFFFFFFC to force it to be word-aligned. There is no
+difference between the PC and Align(PC,4) values for an ARM instruction,
+but there can be for a Thumb instruction."
+
+B encoding T2:
+11100_iiiiiiiiiii
+i = imm11 (sext(i:'0'))
+
+STR encoding T1:
+01100_iiiii_bbb_sss
+s = src
+i = imm5 (zext(i:'00'))
+b = base register
+
+LDR encoding T1:
+01001_ddd_iiiiiiii
+d = dest register
+i = imm8 (zext(i:'00'))
+
+0x1000_0000: - base of SRAM
+  01001_000_00000010 ; ldr r0, dir0
+  01001_001_00000011 ; ldr r1, not0
+0x1000_0004 - i.e 4 - i.e. 1 word
+  01001_010_00000011 ; ldr r2, pi0_3_mask
+  01100_00000_000_010 ; str r2, [r0]
+0x1000_0008 - loop: - 8 i.e. 2 words
+  01100_00000_001_010 ; str r2, [r1]
+  11100_11111111101 ; b loop
+0x1000_000C - dir0: i.e. 12 - i.e. 3 words
+0xA000_2000 ; dir0
+0x1000_0010 - not0: i.e. 16 - i.e. 4 words
+0xA000_2300 ; not0
+0x1000_0014 - pi0_3_mask: i.e. 20 - i.e. 5 words
+0x0000_0008 ; pi0_3_mask
+
+
+"ARMv6-M and ARMv7-M only support instruction fetches in little endian format"
+
+22.5.1.1 Unlock <Unlock code>
+"U 23130<CR><LF>" unlocks the Flash Write/Erase & Go commands.
+
