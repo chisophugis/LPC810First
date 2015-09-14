@@ -22,3 +22,21 @@ unknowns".
 The "breaking the ice" is where the "unknown unknowns" are dispelled
 and new capabilities are added to my list of "things I can juggle
 around and piece together when trying to accomplish something".
+
+
+Useful documents:
+
+"UM10601 LPC81x User manual"
+  - from NXP
+  - family info
+  - see especially "21.6.2 Boot process"
+"LPC81xM 32-bit ARM Cortex-M0+ microcontroller; up to 16 kB flash and
+4 kB SRAM"
+  - from NXP
+  - device-specific datasheet
+"ARMv6-M Architecture Reference Manual"
+  - from ARM (ARM DDI0419C)
+  - see especially instruction encoding stuff
+"Cortex-M0+ Technical Reference Manual"
+  - from ARM (ARM DDI 0484B)
+  - don't remember if I looked at this much.
